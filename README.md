@@ -64,6 +64,34 @@ Ensure the AWS Systems Manager Agent is installed and running on all target EC2 
 > [!NOTE]
 > This module automatically creates an IAM role for SSM automation with the necessary permissions to deploy and manage the Falcon sensor. You can optionally specify a permissions boundary if required by your organization's policies.
 
+## Scheduling
+
+The association runs on a schedule defined by `cron_schedule_expression`. The default schedule is `cron(0 2 */1 * * ? *)` which runs daily at 2 AM UTC.
+
+You can customize the schedule by updating the `cron_schedule_expression` parameter:
+
+```hcl
+cron_schedule_expression = "cron(0 */6 * * ? *)" # Every 6 hours
+```
+
+### Event Driven Execution
+
+This association will run automatically upon initial deployment of the module and subsequent changes.
+
+State Manager also runs the association after any of the following activity occurs on a target node:
+
+- A managed node comes online for the first time.
+- A managed node comes online after missing a scheduled association run.
+- A managed node comes online after being stopped for more than 30 days.
+
+### Preventing associations from running when a target changes
+
+To prevent an association from running automatically upon deployment and when a target changes, you can set `apply_only_at_cron_interval = true`. When enabled, the association will only run at the scheduled cron interval.
+
+This is useful when you prefer strict control over when sensors are deployed to reduce cost and avoid automatic deployments outside your maintenance windows.
+
+For more information about scheduling options and when associations are automatically applied, review the [AWS Systems Manager State Manager documentation](https://docs.aws.amazon.com/systems-manager/latest/userguide/state-manager-about.html#state-manager-about-scheduling).
+
 ## Usage
 
 ```hcl
@@ -165,6 +193,7 @@ module "crowdstrike_distributor" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_action"></a> [action](#input\_action) | Action to perform: 'Install' to install the Falcon sensor, or 'Uninstall' to remove it. | `string` | `"Install"` | no |
+| <a name="input_apply_only_at_cron_interval"></a> [apply\_only\_at\_cron\_interval](#input\_apply\_only\_at\_cron\_interval) | By default, when you create a new association, the system runs it immediately and then according to the schedule you specified. Set this to true to prevent the association from running immediately after creation or when a target comes online. The association will only run at the scheduled cron interval. | `bool` | `false` | no |
 | <a name="input_association_max_concurrency"></a> [association\_max\_concurrency](#input\_association\_max\_concurrency) | Maximum number of instances that can run the association at the same time. | `string` | `"50%"` | no |
 | <a name="input_association_max_errors"></a> [association\_max\_errors](#input\_association\_max\_errors) | Maximum number of errors allowed before stopping the association execution. | `string` | `"0"` | no |
 | <a name="input_association_name_prefix"></a> [association\_name\_prefix](#input\_association\_name\_prefix) | Prefix for the SSM association name. The region name will be appended automatically (e.g., 'prefix-us-east-1'). | `string` | `""` | no |

@@ -168,6 +168,7 @@ resource "aws_ssm_association" "sensor_deploy" {
   automation_target_parameter_name = "InstanceIds"
   max_concurrency                  = var.association_max_concurrency
   max_errors                       = var.association_max_errors
+  apply_only_at_cron_interval      = var.apply_only_at_cron_interval
 
   parameters = {
     Action                   = var.action

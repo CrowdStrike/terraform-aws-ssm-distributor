@@ -127,7 +127,7 @@ variable "falcon_client_secret_ssm_parameter_name" {
   default     = "/CrowdStrike/Falcon/ClientSecret"
 }
 
-# Additional Variables for Production Readiness
+# Miscellaneous
 
 variable "ssm_document_name" {
   description = "The name of the SSM document to use for sensor deployment. Defaults to the official CrowdStrike document."
@@ -175,4 +175,10 @@ variable "association_max_errors" {
   description = "Maximum number of errors allowed before stopping the association execution."
   type        = string
   default     = "0"
+}
+
+variable "apply_only_at_cron_interval" {
+  description = "By default, when you create a new association, the system runs it immediately and then according to the schedule you specified. Set this to true to prevent the association from running immediately after creation or when a target comes online. The association will only run at the scheduled cron interval."
+  type        = bool
+  default     = false
 }
