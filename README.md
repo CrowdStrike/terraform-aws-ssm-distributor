@@ -118,14 +118,15 @@ variable "falcon_client_secret" {
 }
 
 locals {
-  regions                  = ["us-east-1", "us-west-2"]
-  falcon_cloud             = "us-1"
-  action                   = "Install" # or "Uninstall"
-  secret_storage_method    = "ParameterStore"
-  cron_schedule_expression = "cron(0 0 */1 * * ? *)"
-  linux_package_version    = ""
-  windows_package_version  = ""
-  create_kms_key           = false
+  regions                     = ["us-east-1", "us-west-2"]
+  falcon_cloud                = "us-1"
+  action                      = "Install" # or "Uninstall"
+  secret_storage_method       = "ParameterStore"
+  cron_schedule_expression    = "cron(0 0 */1 * * ? *)"
+  apply_only_at_cron_interval = false
+  linux_package_version       = ""
+  windows_package_version     = ""
+  create_kms_key              = false
 }
 
 provider "aws" {
@@ -150,7 +151,8 @@ module "crowdstrike_distributor" {
   secret_storage_method = local.secret_storage_method
 
   # Deployment schedule
-  cron_schedule_expression = local.cron_schedule_expression
+  cron_schedule_expression    = local.cron_schedule_expression
+  apply_only_at_cron_interval = local.apply_only_at_cron_interval
 
   # Package versions (optional - leave empty for latest)
   linux_package_version   = local.linux_package_version
