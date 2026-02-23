@@ -8,7 +8,8 @@
 This Terraform module automates the deployment and maintenance of the CrowdStrike Falcon Sensor across AWS EC2 instances using AWS Systems Manager (SSM) Distributor.
 
 Key features:
-- **Multi-region deployment** using AWS Provider v6 resource-level region support
+- Deploy to multiple regions using AWS Provider v6 resource-level region support
+- Support both AWS Commercial and GovCloud with automatic partition detection
 - Automated sensor deployment via AWS Systems Manager State Manager
 - Multi-platform support (Linux and Windows)
 - Flexible credential storage (Parameter Store or Secrets Manager)

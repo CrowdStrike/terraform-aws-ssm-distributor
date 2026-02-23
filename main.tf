@@ -25,6 +25,9 @@ locals {
   )
 }
 
+# Get current AWS partition for IAM policy ARNs
+data "aws_partition" "current" {}
+
 # IAM role for SSM automation
 data "aws_iam_policy_document" "ssm_assume_role" {
   statement {
@@ -48,10 +51,10 @@ resource "aws_iam_role" "ssm_assume_role" {
 resource "aws_iam_role_policy_attachments_exclusive" "ssm_assume_role" {
   role_name   = aws_iam_role.ssm_assume_role.name
   policy_arns = lower(var.secret_storage_method) == "secretsmanager" ? [
-    "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
-    "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+    "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AmazonSSMAutomationRole",
+    "arn:${data.aws_partition.current.partition}:iam::aws:policy/SecretsManagerReadWrite",
     ] : [
-    "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
+    "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AmazonSSMAutomationRole",
   ]
 }
 
