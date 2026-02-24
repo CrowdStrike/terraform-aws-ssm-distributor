@@ -4,9 +4,11 @@ locals {
   regions_set           = toset(var.regions)
 
   cloud_mappings = {
-    us-1 = "api.crowdstrike.com"
-    us-2 = "api.us-2.crowdstrike.com"
-    eu-1 = "api.eu-1.crowdstrike.com"
+    us-1     = "api.crowdstrike.com"
+    us-2     = "api.us-2.crowdstrike.com"
+    eu-1     = "api.eu-1.crowdstrike.com"
+    us-gov-1 = "api.laggar.gcw.crowdstrike.com"
+    us-gov-2 = "api.us-gov-2.crowdstrike.com"
   }
 
   secret_storage_method_mappings = {

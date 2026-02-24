@@ -92,8 +92,8 @@ variable "falcon_cloud" {
   type        = string
 
   validation {
-    condition     = contains(["us-1", "us-2", "eu-1"], lower(var.falcon_cloud))
-    error_message = "Cloud must be one of us-1, us-2 or eu-1. (case-insensitive)"
+    condition     = contains(["us-1", "us-2", "eu-1", "us-gov-1", "us-gov-2"], lower(var.falcon_cloud))
+    error_message = "Cloud must be one of us-1, us-2, eu-1, us-gov-1 or us-gov-2. (case-insensitive)"
   }
 }
 
