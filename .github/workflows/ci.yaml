@@ -26,8 +26,8 @@ jobs:
       matrix:
         path:
           - "."
-          - "examples/complete-deployment"
-          - "examples/multi-region-deployment"
+          - "examples/basic"
+          - "examples/advanced"
 
     steps:
       - name: Checkout source code

@@ -28,7 +28,7 @@ module "crowdstrike_distributor" {
 
   # Association configuration
   association_name_prefix     = "production"
-  cron_schedule_expression    = "cron(0 2 */1 * * ? *)" # Daily at 2 AM UTC
+  cron_schedule_expression    = "cron(0 2 ? * * *)" # Daily at 2 AM UTC
   association_max_concurrency = "25%"
   association_max_errors      = "5"
 

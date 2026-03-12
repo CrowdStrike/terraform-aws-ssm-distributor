@@ -20,9 +20,8 @@ locals {
   common_tags = merge(
     var.tags,
     {
-      Module      = "crowdstrike-falcon-distributor"
-      ManagedBy   = "terraform"
-      CreatedDate = timestamp()
+      Module    = "crowdstrike-falcon-distributor"
+      ManagedBy = "terraform"
     }
   )
 }
@@ -51,13 +50,38 @@ resource "aws_iam_role" "ssm_assume_role" {
 }
 
 resource "aws_iam_role_policy_attachments_exclusive" "ssm_assume_role" {
-  role_name   = aws_iam_role.ssm_assume_role.name
-  policy_arns = lower(var.secret_storage_method) == "secretsmanager" ? [
-    "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AmazonSSMAutomationRole",
-    "arn:${data.aws_partition.current.partition}:iam::aws:policy/SecretsManagerReadWrite",
-    ] : [
+  role_name = aws_iam_role.ssm_assume_role.name
+  policy_arns = [
     "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AmazonSSMAutomationRole",
   ]
+}
+
+data "aws_iam_policy_document" "secrets_access" {
+  count = local.secret_storage_method == "secretsmanager" ? 1 : 0
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = [
+      for region in local.regions_set : aws_secretsmanager_secret.distributor_secret[region].arn
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "secrets_access" {
+  count = local.secret_storage_method == "secretsmanager" ? 1 : 0
+
+  role   = aws_iam_role.ssm_assume_role.name
+  name   = "SecretsManagerAccess"
+  policy = data.aws_iam_policy_document.secrets_access[0].json
+}
+
+resource "aws_iam_role_policies_exclusive" "ssm_assume_role" {
+  role_name    = aws_iam_role.ssm_assume_role.name
+  policy_names = local.secret_storage_method == "secretsmanager" ? [aws_iam_role_policy.secrets_access[0].name] : []
 }
 
 # Data source to validate SSM document exists in each region
@@ -196,5 +220,6 @@ resource "aws_ssm_association" "sensor_deploy" {
     aws_ssm_parameter.falcon_client_secret,
     aws_secretsmanager_secret_version.distributor_secret_version,
     aws_iam_role_policy_attachments_exclusive.ssm_assume_role,
+    aws_iam_role_policies_exclusive.ssm_assume_role,
   ]
 }

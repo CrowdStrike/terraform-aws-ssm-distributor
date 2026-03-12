@@ -25,7 +25,7 @@ locals {
   falcon_cloud                = "us-1"
   action                      = "Install" # or "Uninstall"
   secret_storage_method       = "ParameterStore"
-  cron_schedule_expression    = "cron(0 0 */1 * * ? *)"
+  cron_schedule_expression    = "cron(0 2 ? * * *)"
   apply_only_at_cron_interval = false
   linux_package_version       = ""
   windows_package_version     = ""

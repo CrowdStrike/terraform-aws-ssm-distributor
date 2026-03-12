@@ -59,9 +59,9 @@ variable "windows_installer_params" {
 }
 
 variable "cron_schedule_expression" {
-  description = "The cron schedule expression for the AWS State Manager association. Defaults to every hour."
+  description = "The cron schedule expression for the AWS State Manager association. Defaults to daily at 2 AM UTC."
   type        = string
-  default     = "cron(0 0 */1 * * ? *)"
+  default     = "cron(0 2 ? * * *)"
 }
 
 # Falcon API Credentials Variables 

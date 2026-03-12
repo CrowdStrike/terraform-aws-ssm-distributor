@@ -12,7 +12,7 @@ module "crowdstrike_distributor" {
   falcon_client_secret = var.falcon_client_secret
 
   # Optional: Customize deployment
-  cron_schedule_expression = "cron(0 2 */1 * * ? *)" # Daily at 2 AM UTC
+  cron_schedule_expression = "cron(0 2 ? * * *)" # Daily at 2 AM UTC
 
   tags = {
     Environment = "production"
