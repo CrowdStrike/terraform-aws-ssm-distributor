@@ -8,8 +8,7 @@
 This Terraform module automates the deployment and maintenance of the CrowdStrike Falcon Sensor across AWS EC2 instances using AWS Systems Manager (SSM) Distributor.
 
 Key features:
-- Deploy to multiple regions using AWS Provider v6 resource-level region support
-- Support both AWS Commercial and GovCloud with automatic partition detection
+- Multi-region deployment using AWS Provider v6 resource-level region support
 - Automated sensor deployment via AWS Systems Manager State Manager
 - Multi-platform support (Linux and Windows)
 - Flexible credential storage (Parameter Store or Secrets Manager)
@@ -67,12 +66,12 @@ Ensure the AWS Systems Manager Agent is installed and running on all target EC2 
 
 ## Scheduling
 
-The association runs on a schedule defined by `cron_schedule_expression`. The default schedule is `cron(0 2 */1 * * ? *)` which runs daily at 2 AM UTC.
+The association runs on a schedule defined by `cron_schedule_expression`. The default schedule is `cron(0 2 ? * * *)` which runs daily at 2 AM UTC.
 
 You can customize the schedule by updating the `cron_schedule_expression` parameter:
 
 ```hcl
-cron_schedule_expression = "cron(0 */6 * * ? *)" # Every 6 hours
+cron_schedule_expression = "cron(0 2 ? * * *)" # Daily at 2 AM UTC
 ```
 
 ### Event Driven Execution
@@ -123,7 +122,7 @@ locals {
   falcon_cloud                = "us-1"
   action                      = "Install" # or "Uninstall"
   secret_storage_method       = "ParameterStore"
-  cron_schedule_expression    = "cron(0 0 */1 * * ? *)"
+  cron_schedule_expression    = "cron(0 2 ? * * *)"
   apply_only_at_cron_interval = false
   linux_package_version       = ""
   windows_package_version     = ""
@@ -170,16 +169,24 @@ module "crowdstrike_distributor" {
 }
 ```
 
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0.0 |
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.33.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.36.0 |
 ## Resources
 
 | Name | Type |
 |------|------|
 | [aws_iam_role.ssm_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policies_exclusive.ssm_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policies_exclusive) | resource |
+| [aws_iam_role_policy.secrets_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachments_exclusive.ssm_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachments_exclusive) | resource |
 | [aws_kms_alias.distributor_key_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.distributor_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
@@ -189,7 +196,9 @@ module "crowdstrike_distributor" {
 | [aws_ssm_parameter.falcon_client_id](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_ssm_parameter.falcon_client_secret](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_ssm_parameter.falcon_cloud](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
+| [aws_iam_policy_document.secrets_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.ssm_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_ssm_document.falcon_sensor_deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_document) | data source |
 ## Inputs
 
@@ -201,7 +210,7 @@ module "crowdstrike_distributor" {
 | <a name="input_association_max_errors"></a> [association\_max\_errors](#input\_association\_max\_errors) | Maximum number of errors allowed before stopping the association execution. | `string` | `"0"` | no |
 | <a name="input_association_name_prefix"></a> [association\_name\_prefix](#input\_association\_name\_prefix) | Prefix for the SSM association name. The region name will be appended automatically (e.g., 'prefix-us-east-1'). | `string` | `""` | no |
 | <a name="input_create_kms_key"></a> [create\_kms\_key](#input\_create\_kms\_key) | Whether to create a customer-managed KMS key for encryption. Defaults to false to use AWS managed keys. | `bool` | `false` | no |
-| <a name="input_cron_schedule_expression"></a> [cron\_schedule\_expression](#input\_cron\_schedule\_expression) | The cron schedule expression for the AWS State Manager association. Defaults to every hour. | `string` | `"cron(0 0 */1 * * ? *)"` | no |
+| <a name="input_cron_schedule_expression"></a> [cron\_schedule\_expression](#input\_cron\_schedule\_expression) | The cron schedule expression for the AWS State Manager association. Defaults to daily at 2 AM UTC. | `string` | `"cron(0 2 ? * * *)"` | no |
 | <a name="input_falcon_client_id"></a> [falcon\_client\_id](#input\_falcon\_client\_id) | The Client ID of the Falcon API Credentials | `string` | n/a | yes |
 | <a name="input_falcon_client_id_ssm_parameter_name"></a> [falcon\_client\_id\_ssm\_parameter\_name](#input\_falcon\_client\_id\_ssm\_parameter\_name) | The name of the SSM parameter that will be created to store the Falcon API Client ID. | `string` | `"/CrowdStrike/Falcon/ClientId"` | no |
 | <a name="input_falcon_client_secret"></a> [falcon\_client\_secret](#input\_falcon\_client\_secret) | The Client Secret of the Falcon API Credentials | `string` | n/a | yes |

@@ -1,9 +1,6 @@
 formatter: markdown table
 recursive:
   enabled: false
-sections:
-  hide:
-    - requirements
 output:
   file: README.md
   mode: inject
@@ -17,6 +14,7 @@ content: |-
   {{ include "docs/.usage.tf" }}
   ```
 
+  {{ .Requirements }}
   {{ .Providers }}
   {{ .Resources }}
   {{ .Inputs }}
