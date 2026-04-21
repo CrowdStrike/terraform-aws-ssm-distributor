@@ -24,6 +24,11 @@ locals {
       ManagedBy = "terraform"
     }
   )
+
+  ssm_targets = var.association_targets != null ? var.association_targets : {
+    key    = "InstanceIds"
+    values = ["*"]
+  }
 }
 
 # Get current AWS partition for IAM policy ARNs
@@ -190,8 +195,8 @@ resource "aws_ssm_association" "sensor_deploy" {
   schedule_expression = var.cron_schedule_expression
 
   targets {
-    key    = "InstanceIds"
-    values = ["*"]
+    key    = local.ssm_targets.key
+    values = local.ssm_targets.values
   }
 
   automation_target_parameter_name = "InstanceIds"

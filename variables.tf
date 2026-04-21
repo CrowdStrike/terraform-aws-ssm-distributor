@@ -182,3 +182,28 @@ variable "apply_only_at_cron_interval" {
   type        = bool
   default     = false
 }
+
+variable "association_targets" {
+  description = <<-EOT
+    Optional target for the SSM association. When not set, all managed instances are targeted.
+
+    Specify exactly one of:
+      - key = "InstanceIds",       values = ["*"]             — all managed instances (default)
+      - key = "tag:<TagKey>",      values = ["<value>", ...]  — instances matching an EC2 tag
+      - key = "ResourceGroup",     values = ["<group-name>"]  — instances in an AWS Resource Group
+
+    Note: CrowdStrike-FalconSensorDeploy is an Automation document and supports only one tag key
+    as a target filter. To AND multiple tags together, create an AWS Resource Groups group with
+    the desired tag filters and use key = "ResourceGroup".
+  EOT
+  type = object({
+    key    = string
+    values = list(string)
+  })
+  default = null
+
+  validation {
+    condition     = var.association_targets == null || length(var.association_targets.values) >= 1
+    error_message = "association_targets.values must contain at least one entry."
+  }
+}

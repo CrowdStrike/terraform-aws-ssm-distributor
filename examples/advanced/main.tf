@@ -40,6 +40,16 @@ module "crowdstrike_distributor" {
   linux_installer_params   = "--tags=Environment:Production,ManagedBy:Terraform"
   windows_installer_params = "/tags=Environment:Production,ManagedBy:Terraform"
 
+  # Optional: target only specific EC2 instances.
+  # Note: CrowdStrike-FalconSensorDeploy is an Automation document — only one tag key is
+  # supported. To AND multiple tags, use an AWS Resource Group.
+  #
+  # Target by single tag:
+  # association_targets = { key = "tag:Environment", values = ["production"] }
+  #
+  # Target by AWS Resource Group (supports multi-tag AND filtering):
+  # association_targets = { key = "ResourceGroup", values = ["my-crowdstrike-targets"] }
+
   # Comprehensive tagging
   tags = {
     Environment = "production"
